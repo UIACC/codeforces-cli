@@ -12,7 +12,8 @@ while(!exit){
 
 	switch(choice){
 		case '1':
-			console.log("you chose to get the contest standing\n");
+			var handle = readline.question("Enter CodeForces handle: ");
+			userStatus(handle);
 			break;
 		case '2':
 			console.log("you chose to get the contest standing\n");
@@ -22,12 +23,12 @@ while(!exit){
 			break;
 	}
 	var check = readline.question("Press 1 to continue or 0  to exit:\n");
-	if (check == 0) {
-		exit = true;
-	}
 }
-function userStatus (handle){
-	const url = "https://codeforces.com/api/user.status?handle="+handle;
+
+
+
+function userStatus (a){
+	const url = "https://codeforces.com/api/user.status?handle="+a;
 	https.get (url,res => {
 		let body = " ";
 		res.on ('data', data => {
