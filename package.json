@@ -1,0 +1,22 @@
+{
+  "name": "cf-cli",
+  "version": "1.0.0",
+  "description": "\"Command line tool for codeforces\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UIACC/CF-CLI.git"
+  },
+  "keywords": [
+    "codeforces"
+  ],
+  "author": "UCC",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UIACC/CF-CLI/issues"
+  },
+  "homepage": "https://github.com/UIACC/CF-CLI#readme"
+}
