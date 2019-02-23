@@ -1,5 +1,5 @@
 {
-  "name": "cf-cli",
+  "name": "codeforces-cli",
   "version": "1.0.0",
   "description": "\"Command line tool for codeforces\"",
   "main": "index.js",
@@ -18,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/UIACC/CF-CLI/issues"
   },
-  "homepage": "https://github.com/UIACC/CF-CLI#readme"
+  "homepage": "https://github.com/UIACC/CF-CLI#readme",
+  "bin": {
+    "cf": "./index.js"
+  },
+  "dependencies": {
+    "minimist": "^1.2.0",
+    "readline": "^1.3.0",
+    "request": "^2.88.0"
+  }
 }
