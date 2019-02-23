@@ -6,6 +6,7 @@ var argv = require('minimist')(process.argv.slice(2));
 var func = argv["_"][0];
 
 if (func == "get-user") {
+  var handle = argv["_"][1];
   request('http://codeforces.com/api/user.info?handles=' + handle, function (error, response, body) {
       if (error) {
           console.error(error);
@@ -56,5 +57,5 @@ if (func == "get-user") {
   // TODO:
   console.log("Invalid Function");
 
-  
+
 }
