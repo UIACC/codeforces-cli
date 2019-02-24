@@ -51,7 +51,29 @@ function generateProblems(handle, count, tag, difficulty) {
 
 function recentActions(count) {
     // TODO:
-    console.log(colors.green("coming Soon :)"));
+    request('http://codeforces.com/api/recentActions?maxCount=30', function (error, response, body) {
+        if (error) {
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+              result = result.result.slice(1, count+1);
+              var author,title,url;
+              for (var i = 0; i < count; i++) {
+                author = result[i].blogEntry.authorHandle;
+                title = result[i].blogEntry.title.slice(3,-4);
+                url = "https://codeforces.com/blog/entry/"+result[i].blogEntry.id;
+                console.log("\n----------------------");
+                console.log('[-] Author: ' + author);
+                console.log('[-] Title : ' + title);
+                console.log(colors.green('[-] URL : ' + url));
+                console.log("----------------------");
+              }
+            }
+        }
+    });
 }
 
 
