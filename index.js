@@ -78,8 +78,24 @@ function recentActions(count) {
 
 
 function userSubmissions(handle, count) {
-    // TODO:
-    console.log(colors.green("coming Soon :)"));
+  request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count+1, function (error, response, body){
+    if (error){
+      console.error(error);
+    } else {
+        var result = JSON.parse(body);
+        if (result.status == "FAILED"){
+          console.log(result.comment);
+        } else {
+          result = result.result.slice(1,count+2);
+          for(i=0;i<count;++i){
+            console.log('[-] Problem Name :' + result[i].problem.name);
+            console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
+            console.log('[-] Problem Status :' +  result[i].verdict);
+            console.log("----------");
+          }
+        }
+      }
+    });
 }
 
 
