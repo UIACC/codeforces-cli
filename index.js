@@ -43,10 +43,56 @@ function contestStatistics(handle) {
 }
 
 
-function generateProblems(handle, count, tag, difficulty) {
-    // TODO:
-    console.log(colors.green("coming Soon :)"));
+async function generateProblems(handle, count, tag, difficulty) {
+    var accepted = [];
+    request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
+        if (error) {
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+                result = result.result;
+                for (i = 0; i < result.length; ++i) {
+                    if (result[i].verdict == "OK") {
+                        var accepted_Question = result[i].problem.contestId + result[i].problem.index;
+                        accepted.push(result[i].accepted_Question);
+                    }
+
+                }
+
+            }
+        }
+    });
+    request('https://codeforces.com/api/problemset.problems?' + tag, function (error, response, body) {
+        if (error) {
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+                var found = 0;
+                var i = 0;
+                var result = result.result;
+                while (found < count) {
+                    var current_Question = result.problems[i].contestId + result.problems[i].index
+                    if (result.problems[i].rating <= difficulty && accepted.indexOf(current_Question) == -1) {
+                        console.log(" [-] " + result.problems[i].name + " " + result.problems[i].rating);
+                        console.log(" [-] URl : "+ colors.green("https://codeforces.com/problemset/problem/" + result.problems[i].contestId + "/" + result.problems[i].index));
+                        console.log("----------------------\n");
+                        found += 1;
+                    }
+                    i += 1;
+                }
+            }
+        }
+    });
+
 }
+
+
 
 
 function recentActions(count) {
@@ -172,7 +218,7 @@ program
     .option('-d, --difficulty', 'difficulty of the required problems')
     .action(function (usr, cnt, tag, dif) {
         if (typeof usr === "string" && typeof cnt === "string" &&
-            typeof tap === "string" && typeof dif === "string")
+            typeof tag === "string" && typeof dif === "string")
             generateProblems(usr, cnt, tag, dif);
         else
             console.log("Invalid!!!!!!");
