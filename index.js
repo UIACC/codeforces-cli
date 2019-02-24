@@ -62,8 +62,25 @@ function userSubmissions(handle, count) {
 
 
 function upcomingContests(count) {
-    // TODO:
-    console.log(colors.green("coming Soon :)"));
+    request('https://codeforces.com/api/contest.list', function (error, response, body){
+      if (error){
+        console.error(error);
+      } else {
+          var result = JSON.parse(body);
+          if (result.status == "FAILED"){
+            console.log(result.comment);
+          } else {
+            result = result.result.slice(1,count+1);
+            for(i=0;i<count;++i){
+              console.log('[-] Contest Name :' + result[i].name);
+              console.log('[-] Contest Duration :' + result[i].durationSeconds/3600 + " hours");
+              console.log('[-] Contest Type :' +  result[i].type);
+              console.log('[-] Contest Status :' + result[i].phase);
+              console.log("----------");
+            }
+          }
+        }
+      });
 }
 
 
