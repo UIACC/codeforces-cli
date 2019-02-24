@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/UIACC/CF-CLI.git"
+    "url": "git+https://github.com/UIACC/codeforces-cli.git"
   },
   "keywords": [
     "codeforces"
@@ -16,9 +16,9 @@
   "author": "UCC",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/UIACC/CF-CLI/issues"
+    "url": "https://github.com/UIACC/codeforces-cli/issues"
   },
-  "homepage": "https://github.com/UIACC/CF-CLI#readme",
+  "homepage": "https://github.com/UIACC/codeforces-cli#readme",
   "bin": {
     "cf": "./index.js"
   },
