@@ -81,7 +81,7 @@ async function generateProblems(handle, count, tag, difficulty) {
                                     console.log("----------------------\n");
                                     found += 1;
                                     result.problems = result.problems.slice(1);
-                    
+
                                 }
                             }
                         }
@@ -139,19 +139,19 @@ function userSubmissions(handle, count) {
             console.error(error);
         } else {
           var result = JSON.parse(body);
-            if (result.status == "FAILED") {
-                console.log(result.comment);
-            } else {
-                result = result.result.slice(0, count + 2);
-                for (i = 0; i < count; ++i) {
-                    console.log('[-] Submission Id :' + result[i].id);
-                    console.log('[-] Contest Id :' + result[i].contestId);
-                    console.log('[-] Problem Name :' + result[i].problem.name);
-                    console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
-                    console.log('[-] Problem Status :' +  result[i].verdict);
-                    console.log("----------\n");
-                }
+          result = result.result.slice(0,count+1);
+          for(i=0;i<count;++i){
+            console.log('[-] Submission Link :' + colors.green('https://codeforces.com/contest/' + result[i].contestId +'/submission/' + result[i].id));
+            console.log('[-] Problem Name :' + result[i].problem.name);
+            console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
+            if(result[i].verdict != "OK") {
+              console.log('[-] Problem Status :' +  result[i].verdict + " on test " + (result[i].passedTestCount + 1));
             }
+            else {
+            console.log('[-] Problem Status :' +  result[i].verdict);
+            }
+            console.log("----------");
+          }
         }
     });
 }
@@ -166,14 +166,18 @@ function upcomingContests(count) {
           if (result.status == "FAILED"){
             console.log(result.comment);
           } else {
-            result = result.result.slice(0,count+1);
-            for(i=0;i<count;++i){
-              console.log('[-] Contest Name :' + result[i].name);
-              console.log('[-] Contest Duration :' + result[i].durationSeconds/3600 + " hours");
-              console.log('[-] Contest Type :' +  result[i].type);
-              console.log('[-] Contest Status :' + result[i].phase);
-              console.log("----------");
+            result = result.result.slice(1,count+1);
+            for( i = 0 ; i < result.length ; ++i){
+              if(result[i].phase != "FINISHED" && count>0){
+                count-=1;
+                console.log('[-] Contest Name :' + result[i].name);
+                console.log('[-] Contest Duration :' + result[i].durationSeconds/3600 + " hours");
+                console.log('[-] Contest Type :' +  result[i].type);
+                console.log('[-] Contest Status :' + result[i].phase);
+                console.log("----------");
+              }
             }
+          }
         }
     }
 });
