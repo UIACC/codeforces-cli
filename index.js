@@ -212,7 +212,7 @@ function upcomingContests(count) {
 
 
 program
-    .version('0.0.1', '-v, --version');
+    .version('1.0.3', '-v, --version');
 
 program.on('--help', () => {
     console.log('\n  All options:');
