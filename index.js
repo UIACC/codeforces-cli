@@ -86,11 +86,16 @@ function userSubmissions(handle, count) {
         if (result.status == "FAILED"){
           console.log(result.comment);
         } else {
-          result = result.result.slice(1,count+2);
-          for(i=0;i<count;++i){
+          result = result.result.slice(0,count+1);
+          for(i = 0; i < count ; ++i ){
             console.log('[-] Problem Name :' + result[i].problem.name);
             console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
+            if(result[i].verdict != "OK") {
+              console.log('[-] Problem Status :' +  result[i].verdict + " on test " + (result[i].passedTestCount + 1));
+            }
+            else {
             console.log('[-] Problem Status :' +  result[i].verdict);
+            }
             console.log("----------");
           }
         }
@@ -109,12 +114,15 @@ function upcomingContests(count) {
             console.log(result.comment);
           } else {
             result = result.result.slice(1,count+1);
-            for(i=0;i<count;++i){
-              console.log('[-] Contest Name :' + result[i].name);
-              console.log('[-] Contest Duration :' + result[i].durationSeconds/3600 + " hours");
-              console.log('[-] Contest Type :' +  result[i].type);
-              console.log('[-] Contest Status :' + result[i].phase);
-              console.log("----------");
+            for( i = 0 ; i < result.length ; ++i){
+              if(result[i].phase != "FINISHED" && count>0){
+                count-=1;
+                console.log('[-] Contest Name :' + result[i].name);
+                console.log('[-] Contest Duration :' + result[i].durationSeconds/3600 + " hours");
+                console.log('[-] Contest Type :' +  result[i].type);
+                console.log('[-] Contest Status :' + result[i].phase);
+                console.log("----------");
+              }
             }
           }
         }
