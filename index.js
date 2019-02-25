@@ -56,7 +56,11 @@ async function submissionCode(submissionId,contestId) {
     var result = await scrapsite(url);
     result = JSON.parse(result);
     result = result.code;
-    result = result.replace(/;/g, ";\n");
+    result = result.replace(/#/g, "\n#");
+    result = result.replace(/#include<iostream>/g, "#include<iostream>\n");
+    result = result.replace(/{/g, "{\n");
+    result = result.replace(/}/g, "}\n");
+    result = result.replace(/; /g, ";\n");
     console.log(result);
 }
 
@@ -156,11 +160,11 @@ function recentActions(count) {
 }
 
 
-function userSubmissions(handle, count) {
-    request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1, function (error, response, body) {
+async function userSubmissions(handle, count) {
+    request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1, await function (error, response, body) {
         if (error) {
-            console.error(error);
-        } else {
+            console.error(error);// result = result.result.slice(0,count+1);
+        } else {// result = result.result.slice(0,count+1);
           var result = JSON.parse(body);
           result = result.result.slice(0,count+1);
           for(i=0;i<count;++i){
