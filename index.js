@@ -3,6 +3,7 @@
 const request = require('request');
 const program = require('commander');
 const colors = require('colors');
+const shuffle = require('shuffle-array');
 
 
 function getUser(handle) {
@@ -43,15 +44,9 @@ function contestStatistics(handle) {
 }
 
 
-function generateProblems(handle, count, tag, difficulty) {
-    // TODO:
-    console.log(colors.green("coming Soon :)"));
-}
-
-
-function recentActions(count) {
-    // TODO:
-    request('http://codeforces.com/api/recentActions?maxCount=30', function (error, response, body) {
+async function generateProblems(handle, count, tag, difficulty) {
+    var accepted = [];
+    await request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
         if (error) {
             console.error(error);
         } else {
@@ -59,17 +54,78 @@ function recentActions(count) {
             if (result.status == "FAILED") {
                 console.log(result.comment);
             } else {
-              result = result.result.slice(1, count+1);
+                result = result.result;
+                for (i = 0; i < 100; ++i) {
+                    if (result[i].verdict == "OK") {
+                        var accepted_Question = result[i].problem.contestId + result[i].problem.index;
+                        accepted.push(accepted_Question);
+                    }
+                }
+                request('https://codeforces.com/api/problemset.problems?tags=' + tag, function (error, response, body) {
+                    if (error) {
+                        console.error(error);
+                    } else {
+                        var result = JSON.parse(body);
+                        if (result.status == "FAILED") {
+                            console.log(result.comment);
+                        } else {
+                            var found = 0;
+                            var result = result.result;
+                            while (found < count) {
+                                result.problems = shuffle(result.problems);
+                                var current_Question = result.problems[0].contestId + result.problems[0].index
+                                if (result.problems[0].rating <= difficulty && accepted.indexOf(current_Question) == -1) {
+                                    console.log("[-] Name : " + result.problems[0].name);
+                                    console.log("[-] Rating : " +result.problems[0].rating )
+                                    console.log("[-] URl : " + colors.green("https://codeforces.com/problemset/problem/" + result.problems[0].contestId + "/" + result.problems[0].index));
+                                    console.log("----------------------\n");
+                                    found += 1;
+                                    result.problems = result.problems.slice(1);
+
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+}
+
+
+
+
+function recentActions(count) {
+    // Requesting the recent action data from the API
+    request('http://codeforces.com/api/recentActions?maxCount=100', function (error, response, body) {
+        if (error) {
+            // catching errors in connection
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                // Catching error in request format
+                console.log(result.comment);
+            } else {
+              // Parsing the result
+              result = result.result;
               var author,title,url;
-              for (var i = 0; i < count; i++) {
-                author = result[i].blogEntry.authorHandle;
-                title = result[i].blogEntry.title.slice(3,-4);
-                url = "https://codeforces.com/blog/entry/"+result[i].blogEntry.id;
-                console.log("\n----------------------");
-                console.log('[-] Author: ' + author);
-                console.log('[-] Title : ' + title);
-                console.log(colors.green('[-] URL : ' + url));
-                console.log("----------------------");
+              var found = [];
+              for (var i = 0; i < 100; i++) {
+                // Printing The number of recent activities the user wanted
+                if (found.length<count) {
+                  author = result[i].blogEntry.authorHandle;
+                  title = result[i].blogEntry.title.slice(3,-4);
+                  url = "https://codeforces.com/blog/entry/"+result[i].blogEntry.id;
+
+                  if (found.includes(title)==false) {
+                    console.log('[-] Author : ' + author);
+                    console.log('[-] Title : ' + title);
+                    console.log('[-] URL : ' + colors.green(url));
+                    console.log("----------------------\n");
+                    found.push(title);      // keeping track of what have been printed to avoid repeatition.
+                  }
+                }
               }
             }
         }
@@ -78,16 +134,14 @@ function recentActions(count) {
 
 
 function userSubmissions(handle, count) {
-  request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count+1, function (error, response, body){
-    if (error){
-      console.error(error);
-    } else {
-        var result = JSON.parse(body);
-        if (result.status == "FAILED"){
-          console.log(result.comment);
+    request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1, function (error, response, body) {
+        if (error) {
+            console.error(error);
         } else {
-          result = result.result.slice(0,count+1);
-          for(i = 0; i < count ; ++i ){
+          result = result.result.slice(0,count+2);
+          for(i=0;i<count;++i){
+            console.log('[-] Submission Id :' + result[i].id);
+            console.log('[-] Contest Id :' + result[i].contestId);
             console.log('[-] Problem Name :' + result[i].problem.name);
             console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
             if(result[i].verdict != "OK") {
@@ -99,7 +153,6 @@ function userSubmissions(handle, count) {
             console.log("----------");
           }
         }
-      }
     });
 }
 
@@ -124,9 +177,8 @@ function upcomingContests(count) {
                 console.log("----------");
               }
             }
-          }
         }
-      });
+    });
 }
 
 
@@ -180,7 +232,7 @@ program
     .option('-d, --difficulty', 'difficulty of the required problems')
     .action(function (usr, cnt, tag, dif) {
         if (typeof usr === "string" && typeof cnt === "string" &&
-            typeof tap === "string" && typeof dif === "string")
+            typeof tag === "string" && typeof dif === "string")
             generateProblems(usr, cnt, tag, dif);
         else
             console.log("Invalid!!!!!!");
