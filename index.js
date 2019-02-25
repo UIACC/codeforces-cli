@@ -4,6 +4,9 @@ const request = require('request');
 const program = require('commander');
 const colors = require('colors');
 const shuffle = require('shuffle-array');
+const cheerio = require('cheerio')
+const jsonframe = require('jsonframe-cheerio')
+const got = require('got');
 
 
 function getUser(handle) {
@@ -31,10 +34,34 @@ function getUser(handle) {
     });
 }
 
+async function scrapsite(url) {
+    const html = await got(url) // Loading URL
+    const $ = cheerio.load(html.body) //Getting html data
+    jsonframe($) // initializing the plugin
 
-function submissionCode(submissionId) {
-    // TODO:
-    console.log(colors.green("coming Soon :)"));
+    var frame = {
+    	code: {
+    		_s: ".roundbox",
+    		_d: "#program-source-text"
+    	}
+    };
+
+
+    var code = $('#body div#pageContent').scrape(frame, {string: true});
+    return code;
+  }
+
+async function submissionCode(submissionId,contestId) {
+    var url = 'https://codeforces.com/contest/' +contestId +'/submission/' +submissionId;
+    var result = await scrapsite(url);
+    result = JSON.parse(result);
+    result = result.code;
+    result = result.replace(/#/g, "\n#");
+    result = result.replace(/#include<iostream>/g, "#include<iostream>\n");
+    result = result.replace(/{/g, "{\n");
+    result = result.replace(/}/g, "}\n");
+    result = result.replace(/; /g, ";\n");
+    console.log(result);
 }
 
 
@@ -206,9 +233,10 @@ program
 program
     .command('sub-code')
     .option('-s, --submission', 'submission id required')
-    .action(function (id) {
-        if (typeof id === "string")
-            submissionCode(id);
+    .option('-c, --contest', 'contest id required')
+    .action(function (sub_id, con_id) {
+        if (typeof sub_id === "string" && typeof con_id === "string")
+            submissionCode(sub_id, con_id);
         else
             console.log("Invalid!!!!!!");
     });
