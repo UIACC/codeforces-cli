@@ -138,15 +138,20 @@ function userSubmissions(handle, count) {
         if (error) {
             console.error(error);
         } else {
-          result = result.result.slice(0,count+2);
-          for(i=0;i<count;++i){
-            console.log('[-] Submission Id :' + result[i].id);
-            console.log('[-] Contest Id :' + result[i].contestId);
-            console.log('[-] Problem Name :' + result[i].problem.name);
-            console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
-            console.log('[-] Problem Status :' +  result[i].verdict);
-            console.log("----------");
-          }
+          var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+                result = result.result.slice(0, count + 2);
+                for (i = 0; i < count; ++i) {
+                    console.log('[-] Submission Id :' + result[i].id);
+                    console.log('[-] Contest Id :' + result[i].contestId);
+                    console.log('[-] Problem Name :' + result[i].problem.name);
+                    console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
+                    console.log('[-] Problem Status :' +  result[i].verdict);
+                    console.log("----------\n");
+                }
+            }
         }
     });
 }
@@ -170,7 +175,8 @@ function upcomingContests(count) {
               console.log("----------");
             }
         }
-    });
+    }
+});
 }
 
 
