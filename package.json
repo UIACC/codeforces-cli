@@ -23,8 +23,11 @@
     "cf": "./index.js"
   },
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "colors": "^1.3.3",
     "commander": "^2.19.0",
+    "got": "^9.6.0",
+    "jsonframe-cheerio": "^3.0.1",
     "request": "^2.88.0",
     "shuffle-array": "^1.0.1"
   }
