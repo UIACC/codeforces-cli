@@ -160,8 +160,8 @@ function recentActions(count) {
 }
 
 
-async function userSubmissions(handle, count) {
-    request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1, await function (error, response, body) {
+function userSubmissions(handle, count) {
+    request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1, function (error, response, body) {
         if (error) {
             console.error(error);// result = result.result.slice(0,count+1);
         } else {// result = result.result.slice(0,count+1);
