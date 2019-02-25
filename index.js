@@ -215,8 +215,13 @@ program
     .version('0.0.1', '-v, --version');
 
 program.on('--help', () => {
-    console.log('  All options:');
+    console.log('\n  All options:');
     console.log('    -u, --user                handle of the required user');
+    console.log('    -c, --count               number of results required');
+    console.log('    -t, --tag                 tag of the required problems');
+    console.log('    -d, --difficulty          difficulty of the required problems');
+    console.log('    -s, --submission          Submission ID of the requiered submission');
+    console.log('    -i, --contest             contest ID of the requiered submission');
 });
 
 
@@ -233,7 +238,7 @@ program
 program
     .command('sub-code')
     .option('-s, --submission', 'submission id required')
-    .option('-c, --contest', 'contest id required')
+    .option('-i, --contest', 'contest id required')
     .action(function (sub_id, con_id) {
         if (typeof sub_id === "string" && typeof con_id === "string")
             submissionCode(sub_id, con_id);
