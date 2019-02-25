@@ -138,10 +138,10 @@ function userSubmissions(handle, count) {
         if (error) {
             console.error(error);
         } else {
-          result = result.result.slice(0,count+2);
+          var result = JSON.parse(body);
+          result = result.result.slice(0,count+1);
           for(i=0;i<count;++i){
-            console.log('[-] Submission Id :' + result[i].id);
-            console.log('[-] Contest Id :' + result[i].contestId);
+            console.log('[-] Submission Link :' + colors.green('https://codeforces.com/contest/' + result[i].contestId +'/submission/' + result[i].id));
             console.log('[-] Problem Name :' + result[i].problem.name);
             console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
             if(result[i].verdict != "OK") {
@@ -177,6 +177,7 @@ function upcomingContests(count) {
                 console.log("----------");
               }
             }
+          }
         }
     });
 }
