@@ -96,26 +96,36 @@ async function generateProblems(handle, count, tag, difficulty) {
 
 
 function recentActions(count) {
-    // TODO:
-    request('http://codeforces.com/api/recentActions?maxCount=30', function (error, response, body) {
+    // Requesting the recent action data from the API
+    request('http://codeforces.com/api/recentActions?maxCount=100', function (error, response, body) {
         if (error) {
+            // catching errors in connection
             console.error(error);
         } else {
             var result = JSON.parse(body);
             if (result.status == "FAILED") {
+                // Catching error in request format
                 console.log(result.comment);
             } else {
-              result = result.result.slice(1, count+1);
+              // Parsing the result
+              result = result.result;
               var author,title,url;
-              for (var i = 0; i < count; i++) {
-                author = result[i].blogEntry.authorHandle;
-                title = result[i].blogEntry.title.slice(3,-4);
-                url = "https://codeforces.com/blog/entry/"+result[i].blogEntry.id;
-                console.log("\n----------------------");
-                console.log('[-] Author: ' + author);
-                console.log('[-] Title : ' + title);
-                console.log(colors.green('[-] URL : ' + url));
-                console.log("----------------------");
+              var found = [];
+              for (var i = 0; i < 100; i++) {
+                // Printing The number of recent activities the user wanted
+                if (found.length<count) {
+                  author = result[i].blogEntry.authorHandle;
+                  title = result[i].blogEntry.title.slice(3,-4);
+                  url = "https://codeforces.com/blog/entry/"+result[i].blogEntry.id;
+
+                  if (found.includes(title)==false) {
+                    console.log('[-] Author : ' + author);
+                    console.log('[-] Title : ' + title);
+                    console.log('[-] URL : ' + colors.green(url));
+                    console.log("----------------------\n");
+                    found.push(title);      // keeping track of what have been printed to avoid repeatition.
+                  }
+                }
               }
             }
         }
