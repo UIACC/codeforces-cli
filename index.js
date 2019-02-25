@@ -179,7 +179,8 @@ function upcomingContests(count) {
             }
           }
         }
-    });
+    }
+});
 }
 
 
