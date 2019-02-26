@@ -82,10 +82,12 @@ async function generateProblems(handle, count, tag, difficulty) {
                 console.log(result.comment);
             } else {
                 result = result.result;
-                for (i = 0; i < 100; ++i) {
+                for (i = 0; i < result.length; ++i) {
                     if (result[i].verdict == "OK") {
                         var accepted_Question = result[i].problem.contestId + result[i].problem.index;
-                        accepted.push(accepted_Question);
+                        if (accepted.includes(accepted_Question)==false) {
+                          accepted.push(accepted_Question);
+                        }
                     }
                 }
                 request('https://codeforces.com/api/problemset.problems?tags=' + tag, function (error, response, body) {
@@ -101,7 +103,7 @@ async function generateProblems(handle, count, tag, difficulty) {
                             while (found < count) {
                                 result.problems = shuffle(result.problems);
                                 var current_Question = result.problems[0].contestId + result.problems[0].index
-                                if (result.problems[0].rating <= difficulty && accepted.indexOf(current_Question) == -1) {
+                                if (result.problems[0].rating <= difficulty && accepted.includes(current_Question) == false) {
                                     console.log("[-] Name : " + result.problems[0].name);
                                     console.log("[-] Rating : " +result.problems[0].rating )
                                     console.log("[-] URl : " + colors.green("https://codeforces.com/problemset/problem/" + result.problems[0].contestId + "/" + result.problems[0].index));
