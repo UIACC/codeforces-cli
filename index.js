@@ -82,13 +82,20 @@ async function generateProblems(handle, count, tag, difficulty) {
                 console.log(result.comment);
             } else {
                 result = result.result;
-                for (i = 0; i < 100; ++i) {
+                for (i = 0; i < result.length; ++i) {
                     if (result[i].verdict == "OK") {
                         var accepted_Question = result[i].problem.contestId + result[i].problem.index;
                         accepted.push(accepted_Question);
+                        if (accepted.includes(accepted_Question)==false) {
+                          accepted.push(accepted_Question);
+                        }
                     }
                 }
                 request('https://codeforces.com/api/problemset.problems?tags=' + tag, function (error, response, body) {
+                    var accepted_URL_Resut =[];
+                    var accepted_Rating_Result =[];
+                    var accepted_Name_Result =[];
+                    var accepted_Result = [];
                     if (error) {
                         console.error(error);
                     } else {
@@ -98,18 +105,30 @@ async function generateProblems(handle, count, tag, difficulty) {
                         } else {
                             var found = 0;
                             var result = result.result;
-                            while (found < count) {
-                                result.problems = shuffle(result.problems);
-                                var current_Question = result.problems[0].contestId + result.problems[0].index
-                                if (result.problems[0].rating <= difficulty && accepted.indexOf(current_Question) == -1) {
-                                    console.log("[-] Name : " + result.problems[0].name);
-                                    console.log("[-] Rating : " +result.problems[0].rating )
-                                    console.log("[-] URl : " + colors.green("https://codeforces.com/problemset/problem/" + result.problems[0].contestId + "/" + result.problems[0].index));
-                                    console.log("----------------------\n");
-                                    found += 1;
-                                    result.problems = result.problems.slice(1);
+                            for (var i = 0; i < result.problems.length; ++i) {
+                                var current_Question = result.problems[i].contestId + result.problems[i].index
+                                if (result.problems[i].rating <= difficulty && accepted.includes(current_Question) == false ){
+                                    accepted_Result.push ({
+                                        Name : result.problems[i].name,
+                                        Rating : result.problems[i].rating,
+                                        URL : "https://codeforces.com/problemset/problem/" + result.problems[i].contestId + "/" + result.problems[i].index    
 
+                                    })    
                                 }
+                            }
+                            
+                            for (var j = 0; j < accepted_Result.length; ++j)
+                            {
+                                accepted_Result = shuffle(accepted_Result); 
+                                const {Name,Rating,URL}=accepted_Result[0];
+                                console.log("[-] Name : " + Name);
+                                console.log("[-] Rating : " + Rating)
+                                console.log("[-] URl : " + colors.green(URL));
+                                console.log("----------------------\n");
+                                found += 1;
+                                accepted_Result= accepted_Result.slice(1);
+                                if (found == count)
+                                    break;
                             }
                         }
                     }
@@ -118,7 +137,6 @@ async function generateProblems(handle, count, tag, difficulty) {
         }
     });
 }
-
 
 
 
