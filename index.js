@@ -296,41 +296,41 @@ function upcomingContests(count) {
 function tagsDistribution (handle){
     var accepted_Tags = [];
     var tagsDictionary = {
-        'implementation' : numimp = 0,
-        'dp' : numdp = 0,
-        'math' : nummath = 0,
-        'greedy' : numgreedy = 0,
-        'brute force' : numbrute = 0,
-        'data structures' : numdata = 0,
-        'constructive algorithms' : numcons = 0,
-        'dfs' : numdfs = 0,
-        'sortings' : numsort = 0,
-        'binary search' : numsearch = 0,
-        'graphs' : numgraphs = 0,
-        'trees' : numtree = 0,
-        'strings' : numstring = 0,
-        'number theory' : numtheory = 0,
-        'geometry' : geometry = 0,
-        'combinatorics' : numcombinatorics = 0,
-        'two pointers' : numpointers = 0,
-        'dsu' : numdsu = 0,
-        'bitmasks' : bitmasks = 0,
-        'probabilities' : numprobabilities = 0,
-        'shortest paths' : numshort = 0,
-        'hashing' : numhashing = 0,
-        'divide and conquer' : numdivide = 0,
-        'games' : numgames = 0,
-        'matrices' : nummatrices = 0,
-        'flows' : numflows = 0,
-        'string suffix structures' : numsuffix = 0,
-        'expression parsing' : numexpression = 0,
-        'graph matchings' : nummatchings = 0,
-        'ternary search' : numternary = 0,
-        'meet-in-the-middle' : nummeet = 0,
-        'fft' : numfft = 0,
-        '2-sat' : numsat = 0,
-        'chinese remainder theorem' : numchinese = 0,
-        'schedules' : numschedules = 0, 
+        'implementation' : 0,
+        'dp' : 0,
+        'math' : 0,
+        'greedy' : 0,
+        'brute force' : 0,
+        'data structures' : 0,
+        'constructive algorithms' : 0,
+        'dfs' : 0,
+        'sortings' : 0,
+        'binary search' : 0,
+        'graphs' : 0,
+        'trees' : 0,
+        'strings' : 0,
+        'number theory' : 0,
+        'geometry' : 0,
+        'combinatorics' : 0,
+        'two pointers' : 0,
+        'dsu' : 0,
+        'bitmasks' : 0,
+        'probabilities' : 0,
+        'shortest paths' : 0,
+        'hashing' : 0,
+        'divide and conquer' : 0,
+        'games' : 0,
+        'matrices' : 0,
+        'flows' : 0,
+        'string suffix structures' : 0,
+        'expression parsing' : 0,
+        'graph matchings' : 0,
+        'ternary search' : 0,
+        'meet-in-the-middle' : 0,
+        'fft' : 0,
+        '2-sat' : 0,
+        'chinese remainder theorem' : 0,
+        'schedules' : 0, 
     };
      
     request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
@@ -360,9 +360,18 @@ function tagsDistribution (handle){
                         }
                     }
                 }
+                console.log () ;
+                console.log("-----------------------------------------------------------------------------------------")
                 for (i in tagsDictionary){
                     if (tagsDictionary[i] != 0)
-                        console.log(i + " " + tagsDictionary[i]);
+                    {   
+
+                        process.stdout.write("[-] "+ i + " : "  );
+                        for (var j = 0; j < (tagsDictionary[i] / accepted_Tags.length)*100; ++j)
+                            process.stdout.write( '█');
+                        console.log( "  " + ((tagsDictionary[i] / accepted_Tags.length)*100).toFixed(2) + " % ");
+                        console.log("-----------------------------------------------------------------------------------------")
+                    }
                 }
                 
             }
@@ -467,7 +476,7 @@ program
             console.log("Invalid!!!!!!");
     });
 program
-    .command('tags-distribution')
+    .command('tag-distribution')
     .option('-u, --user', 'handle of the required user')
     .action(function (usr) {
         if (typeof usr === "string")
