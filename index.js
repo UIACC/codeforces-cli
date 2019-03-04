@@ -293,6 +293,83 @@ function upcomingContests(count) {
     });
 }
 
+function tagsDistribution (handle){
+    var accepted_Tags = [];
+    var tagsDictionary = {
+        'implementation' : numimp = 0,
+        'dp' : numdp = 0,
+        'math' : nummath = 0,
+        'greedy' : numgreedy = 0,
+        'brute force' : numbrute = 0,
+        'data structures' : numdata = 0,
+        'constructive algorithms' : numcons = 0,
+        'dfs' : numdfs = 0,
+        'sortings' : numsort = 0,
+        'binary search' : numsearch = 0,
+        'graphs' : numgraphs = 0,
+        'trees' : numtree = 0,
+        'strings' : numstring = 0,
+        'number theory' : numtheory = 0,
+        'geometry' : geometry = 0,
+        'combinatorics' : numcombinatorics = 0,
+        'two pointers' : numpointers = 0,
+        'dsu' : numdsu = 0,
+        'bitmasks' : bitmasks = 0,
+        'probabilities' : numprobabilities = 0,
+        'shortest paths' : numshort = 0,
+        'hashing' : numhashing = 0,
+        'divide and conquer' : numdivide = 0,
+        'games' : numgames = 0,
+        'matrices' : nummatrices = 0,
+        'flows' : numflows = 0,
+        'string suffix structures' : numsuffix = 0,
+        'expression parsing' : numexpression = 0,
+        'graph matchings' : nummatchings = 0,
+        'ternary search' : numternary = 0,
+        'meet-in-the-middle' : nummeet = 0,
+        'fft' : numfft = 0,
+        '2-sat' : numsat = 0,
+        'chinese remainder theorem' : numchinese = 0,
+        'schedules' : numschedules = 0, 
+    };
+     
+    request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
+        if (error) {
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+                result = result.result;
+                for (i = 0; i < result.length; ++i) {
+                    if (result[i].verdict == "OK") {
+                        var tags= result[i].problem.tags;
+                        accepted_Tags.push(tags);
+                    }
+                }
+                for (i = 0; i < accepted_Tags.length; ++ i)
+                {
+                    for ( j = 0; j < accepted_Tags[i].length; ++j)
+                    {
+                        for (var key in tagsDictionary)
+                        {
+                            if (key == accepted_Tags[i][j]){
+                                ++ tagsDictionary[key];
+                            }
+                        }
+                    }
+                }
+                for (i in tagsDictionary){
+                    if (tagsDictionary[i] != 0)
+                        console.log(i + " " + tagsDictionary[i]);
+                }
+                
+            }
+        }
+    });
+}
+
 
 
 program
@@ -386,6 +463,15 @@ program
     .action(function (usr, cnt) {
         if (typeof usr === "string" && typeof cnt === "string")
             userSubmissions(usr, cnt);
+        else
+            console.log("Invalid!!!!!!");
+    });
+program
+    .command('tags-distribution')
+    .option('-u, --user', 'handle of the required user')
+    .action(function (usr) {
+        if (typeof usr === "string")
+            tagsDistribution(usr);
         else
             console.log("Invalid!!!!!!");
     });
