@@ -293,6 +293,92 @@ function upcomingContests(count) {
     });
 }
 
+function tagsDistribution (handle){
+    var accepted_Tags = [];
+    var tagsDictionary = {
+        'implementation' : 0,
+        'dp' : 0,
+        'math' : 0,
+        'greedy' : 0,
+        'brute force' : 0,
+        'data structures' : 0,
+        'constructive algorithms' : 0,
+        'dfs' : 0,
+        'sortings' : 0,
+        'binary search' : 0,
+        'graphs' : 0,
+        'trees' : 0,
+        'strings' : 0,
+        'number theory' : 0,
+        'geometry' : 0,
+        'combinatorics' : 0,
+        'two pointers' : 0,
+        'dsu' : 0,
+        'bitmasks' : 0,
+        'probabilities' : 0,
+        'shortest paths' : 0,
+        'hashing' : 0,
+        'divide and conquer' : 0,
+        'games' : 0,
+        'matrices' : 0,
+        'flows' : 0,
+        'string suffix structures' : 0,
+        'expression parsing' : 0,
+        'graph matchings' : 0,
+        'ternary search' : 0,
+        'meet-in-the-middle' : 0,
+        'fft' : 0,
+        '2-sat' : 0,
+        'chinese remainder theorem' : 0,
+        'schedules' : 0, 
+    };
+     
+    request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
+        if (error) {
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+                result = result.result;
+                for (i = 0; i < result.length; ++i) {
+                    if (result[i].verdict == "OK") {
+                        var tags= result[i].problem.tags;
+                        accepted_Tags.push(tags);
+                    }
+                }
+                for (i = 0; i < accepted_Tags.length; ++ i)
+                {
+                    for ( j = 0; j < accepted_Tags[i].length; ++j)
+                    {
+                        for (var key in tagsDictionary)
+                        {
+                            if (key == accepted_Tags[i][j]){
+                                ++ tagsDictionary[key];
+                            }
+                        }
+                    }
+                }
+                console.log () ;
+                console.log("-----------------------------------------------------------------------------------------")
+                for (i in tagsDictionary){
+                    if (tagsDictionary[i] != 0)
+                    {   
+
+                        process.stdout.write("[-] "+ i + " : "  );
+                        for (var j = 0; j < (tagsDictionary[i] / accepted_Tags.length)*100; ++j)
+                            process.stdout.write( '█');
+                        console.log( "  " + ((tagsDictionary[i] / accepted_Tags.length)*100).toFixed(2) + " % ");
+                        console.log("-----------------------------------------------------------------------------------------")
+                    }
+                }
+                
+            }
+        }
+    });
+}
+
 
 
 program
@@ -386,6 +472,15 @@ program
     .action(function (usr, cnt) {
         if (typeof usr === "string" && typeof cnt === "string")
             userSubmissions(usr, cnt);
+        else
+            console.log("Invalid!!!!!!");
+    });
+program
+    .command('tag-distribution')
+    .option('-u, --user', 'handle of the required user')
+    .action(function (usr) {
+        if (typeof usr === "string")
+            tagsDistribution(usr);
         else
             console.log("Invalid!!!!!!");
     });
