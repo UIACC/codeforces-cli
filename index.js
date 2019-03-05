@@ -361,16 +361,19 @@ function tagsDistribution (handle){
                     }
                 }
                 console.log () ;
-                console.log("-----------------------------------------------------------------------------------------")
+                console.log(colors.yellow("-----------------------------------------------------------------------------------------"))
                 for (i in tagsDictionary){
                     if (tagsDictionary[i] != 0)
                     {   
 
-                        process.stdout.write("[-] "+ i + " : "  );
-                        for (var j = 0; j < (tagsDictionary[i] / accepted_Tags.length)*100; ++j)
+                        process.stdout.write(colors.yellow("[-] "+ i + " : ")  );
+                        for (var j = 0; j < ((tagsDictionary[i] / accepted_Tags.length) * 100 ) / 2; ++ j)
+                        {
                             process.stdout.write( '█');
+                            process.stdout.write( colors.yellow('█'));
+                        }
                         console.log( "  " + ((tagsDictionary[i] / accepted_Tags.length)*100).toFixed(2) + " % ");
-                        console.log("-----------------------------------------------------------------------------------------")
+                        console.log(colors.yellow("-----------------------------------------------------------------------------------------"))
                     }
                 }
                 
@@ -379,7 +382,121 @@ function tagsDistribution (handle){
     });
 }
 
+function tagsCodeforces (handle){
+    var accepted_Tags_User = [];
+    var tagsDictionary = {
+        'implementation' : [0, 0, 'implementation'],
+        'dp' : [0, 0, 'dp'],
+        'math' : [0, 0, 'math'],
+        'greedy' : [0, 0, 'greedy'],
+        'brute force' : [0, 0, 'brute+force'],
+        'data structures' : [0, 0, 'data+structures'],
+        'constructive algorithms' : [0, 0, 'constructive+algorithms'],
+        'dfs' : [0, 0, 'dfs'],
+        'sortings' : [0, 0, 'sortings'],
+        'binary search' : [0, 0, 'binary+search'],
+        'graphs' : [0, 0, 'graphs'],
+        'trees' : [0, 0 , 'trees'],
+        'strings' : [0, 0, 'strings'],
+        'number theory' : [0, 0, 'number+theory'],
+        'geometry' : [0, 0, 'geometry'],
+        'combinatorics' : [0, 0, 'combinatorics'],
+        'two pointers' : [0, 0, 'two+pointers'],
+        'dsu' : [0, 0, 'dsu'],
+        'bitmasks' : [0, 0, 'bitmasks'],
+        'probabilities' : [0, 0,'probabilities' ],
+        'shortest paths' : [0, 0, 'shortest+paths'],
+        'hashing' : [0, 0, 'hashing'],
+        'divide and conquer' : [0, 0, 'divide+and+conquer'],
+        'games' : [0, 0, 'games'],
+        'matrices' : [0, 0, 'matrices'],
+        'flows' : [0, 0, 'flows' ],
+        'string suffix structures' : [0, 0, 'string+suffix+structures'],
+        'expression parsing' : [0, 0, 'expression+parsing'],
+        'graph matchings' : [0, 0, 'graph+matchings'],
+        'ternary search' : [0, 0, 'ternary+search'],
+        'meet-in-the-middle' : [0, 0, 'meet-in-the-middle'],
+        'fft' : [0, 0, 'fft'],
+        '2-sat' : [0, 0, '2-sat'],
+        'chinese remainder theorem' : [0, 0, 'chinese+remainder+theorem'],
+        'schedules' : [0, 0, 'schedules'], 
+    };
+     
+    request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
+        if (error) {
+            console.error(error);
+        } else {
+            var result = JSON.parse(body);
+            if (result.status == "FAILED") {
+                console.log(result.comment);
+            } else {
+                result = result.result;
+                for (i = 0; i < result.length; ++i) {
+                    if (result[i].verdict == "OK") {
+                        var tags= result[i].problem.tags;
+                        accepted_Tags_User.push(tags);
+                    }
+                }
+                for (i = 0; i < accepted_Tags_User.length; ++ i)
+                {
+                    for ( j = 0; j < accepted_Tags_User[i].length; ++j)
+                    {
+                        for (var key in tagsDictionary)
+                        {
+                            if (key == accepted_Tags_User[i][j]){
+                                ++ tagsDictionary[key][0];
+                            }
+                        }
+                    }
+                }
+                request('https://codeforces.com/api/problemset.problems?' , function (error, response, body) {
+                    var accepted_Result = [];
+                    if (error) {
+                        console.error(error);
+                    } else {
+                        var result = JSON.parse(body);
+                        if (result.status == "FAILED") {
+                            console.log(result.comment);
+                        } else {
+                            var result = result.result;
+                            for (var i = 0; i < result.problems.length; ++i) {
+                                var current_Question = result.problems[i].tags
+                                accepted_Result.push(current_Question);
+                            }
+                            for (i = 0; i < accepted_Result.length; ++ i)
+                            {
+                                for ( j = 0; j < accepted_Result[i].length; ++j)
+                                {
+                                    for (var key in tagsDictionary)
+                                    {
+                                        if (key == accepted_Result[i][j]){
+                                            ++ tagsDictionary[key][1];
+                                        }
+                                    }
+                                }
+                            }
+                            console.log () ;
+                            console.log("-----------------------------------------------------------------------------------------");
+                            for (key in tagsDictionary){
+                                process.stdout.write("[-] "+ key + " : " );
+                                for (var j = 0; j < (tagsDictionary[key][1] / accepted_Result.length) * 100; ++ j)
+                                    process.stdout.write('█');
+                                console.log("   " + ((tagsDictionary[key][1] / accepted_Result.length) * 100).toFixed(2) + " % ");
+                                console.log(colors.yellow("[-] Number of "+ key + " Questions :"+ tagsDictionary[key][1]) +colors.green( " [-] You had Solved : " + tagsDictionary[key][0]) +colors.red( " [-] Not Solved : " +(tagsDictionary[key][1]- tagsDictionary[key][0])));
+                                console.log("[-] To solve more of " + key +  " question visit : " + colors.blue ("https://codeforces.com/problemset?tags="+tagsDictionary[key][2]) );
+                                console.log("-----------------------------------------------------------------------------------------");
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+}
 
+
+
+                        
 
 program
     .version('1.0.4', '-v, --version');
@@ -484,5 +601,16 @@ program
         else
             console.log("Invalid!!!!!!");
     });
+
+program
+    .command('tag-codeforces')
+    .option('-u, --user', 'handle of the required user')
+    .action(function (usr) {
+        if (typeof usr === "string")
+        tagsCodeforces(usr);
+        else
+            console.log("Invalid!!!!!!");
+    });
+
 
 program.parse(process.argv);
