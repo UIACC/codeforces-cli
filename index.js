@@ -479,11 +479,11 @@ function tagsCodeforces (handle){
                             console.log("-----------------------------------------------------------------------------------------");
                             for (key in tagsDictionary){
                                 process.stdout.write("[-] "+ key + " : " );
-                                for (var j = 0; j < (tagsDictionary[key][1] / accepted_Result.length) * 100; ++ j)
+                                for (var j = 0; j < (tagsDictionary[key][0] / tagsDictionary[key][1]) * 100; ++ j)
                                     process.stdout.write('█');
-                                console.log("   " + ((tagsDictionary[key][1] / accepted_Result.length) * 100).toFixed(2) + " % ");
+                                console.log("   " + ((tagsDictionary[key][0] / tagsDictionary[key][1]) * 100).toFixed(2) + " % ");
                                 console.log(colors.yellow("[-] Number of "+ key + " Questions :"+ tagsDictionary[key][1]) +colors.green( " [-] You had Solved : " + tagsDictionary[key][0]) +colors.red( " [-] Not Solved : " +(tagsDictionary[key][1]- tagsDictionary[key][0])));
-                                console.log("[-] To solve more of " + key +  " question visit : " + colors.blue ("https://codeforces.com/problemset?tags="+tagsDictionary[key][2]) );
+                                console.log("[-] To solve more of " + key +  " questions visit : " + colors.blue ("https://codeforces.com/problemset?tags="+tagsDictionary[key][2]) );
                                 console.log("-----------------------------------------------------------------------------------------");
                             }
                         }
