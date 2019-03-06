@@ -19,7 +19,7 @@ A command-line tool for [codeforces](http://codeforces.com)
 * `cf usr-submission -u <handle> -c <number-of-problems>`
 * `cf com-contest -c <maximum-number-of-upcoming-contests>`
 * `cf gen-problems -u <handle> -c <number-of-problems> -t <tag> -d <difficulty>`
-* `cf tag-codeforces -u <handle >
+* `cf tag-codeforces -u <handle>`
 
 ### Installation
 `sudo npm install codeforces-cli -g`
