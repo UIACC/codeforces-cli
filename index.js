@@ -1,39 +1,12 @@
 #!/usr/bin/env node
 
-const request = require('request');
+// Main Packages needed for the application
 const program = require('commander');
-const colors = require('colors');
-const shuffle = require('shuffle-array');
-const cheerio = require('cheerio')
-const jsonframe = require('jsonframe-cheerio')
-const got = require('got');
+const functions = require('./functions')
 
 
-function getUser(handle) {
-    request('http://codeforces.com/api/user.info?handles=' + handle, function (error, response, body) {
-        if (error) {
-            console.error(error);
-        } else {
-            var result = JSON.parse(body);
-            if (result.status == "FAILED") {
-                console.log(result.comment);
-            } else {
-                result = result.result[0];
-                console.log('[-] Handle: ' + result.handle);
-                console.log('[-] Name: ' + result.firstName + ' ' + result.lastName);
-                console.log('[-] Rank: ' + result.rank);
-                console.log('[-] Best Rank: ' + result.maxRank);
-                console.log('[-] Rate: ' + result.rating);
-                console.log('[-] Best Rate: ' + result.maxRating);
-                console.log('[-] Country: ' + result.country);
-                console.log('[-] Organization: ' + result.organization);
-                console.log('[-] Number of friends: ' + result.friendOfCount);
-                console.log('[-] Number of Contributions: ' + result.contribution);
-            }
-        }
-    });
-}
-
+// Get Submission code
+// Scrapping Page for code
 async function scrapsite(url) {
     const html = await got(url) // Loading URL
     const $ = cheerio.load(html.body) //Getting html data
@@ -45,14 +18,11 @@ async function scrapsite(url) {
             _d: "#program-source-text"
         }
     };
-
-
-    var code = $('#body div#pageContent').scrape(frame, {
-        string: true
-    });
+    var code = $('#body div#pageContent').scrape(frame, {string: true});
     return code;
 }
 
+// Reformating the code extracted
 async function submissionCode(submissionId, contestId) {
     var url = 'https://codeforces.com/contest/' + contestId + '/submission/' + submissionId;
     var result = await scrapsite(url);
@@ -65,77 +35,7 @@ async function submissionCode(submissionId, contestId) {
     result = result.replace(/; /g, ";\n");
     console.log(result);
 }
-
-
-function contestStatistics(handle) {
-    // TODO:
-    request(' http://codeforces.com/api/user.rating?handle=' + handle, function (error, response, body) {
-        if (error) {
-            console.error(error);
-        } else {
-            var result = JSON.parse(body);
-            if(result.status == "FAILED") {
-                console.log(result.comment);
-            } else {
-                var change = {rateChange: [], increase: 0, decrease: 0, zero: 0};
-                result = result.result;
-                
-                for(i = 0; i < result.length; i++){
-                    oldRate = result[i].oldRating;
-                    newRate = result[i].newRating;
-                    change.rateChange.push(newRate - oldRate);
-                    if(oldRate < newRate) {
-                        ++change.increase;
-                    } else if(oldRate > newRate) {
-                        ++change.decrease;
-                    }
-                }    
-                change.zero = result.length - (change.increase + change.decrease);        
-                index = {
-                    min: Math.min(...change.rateChange),
-                    max: Math.max(...change.rateChange),
-                    i: 0,
-                    j: 0,
-                    flagI: 0,
-                    flagJ: 0
-                };
-
-                for(i = 0; i < change.rateChange.length; i++) {
-                    if(index.max == change.rateChange[i] && change.rateChange[i] > 0) {
-                        index.i = i;
-                        index.flagI = 1;
-                    }
-                    if(index.min == change.rateChange[i] && change.rateChange[i] < 0) {
-                        index.j = i;
-                        index.flagJ = 1
-                    }
-                }
-                rating = {
-                        highOld: result[index.i].oldRating,
-                        highNew: result[index.i].newRating, 
-                        lowOld: result[index.j].oldRating, 
-                        lowNew: result[index.j].newRating
-                };
-
-                console.log("[-] No of Contests: " + result.length);
-                console.log("[-] Rate increase in contests: " + change.increase);
-                console.log("[-] Rate decrease in contests: " + change.decrease);
-                console.log("[-] zero Rate Change: " + change.zero);
-                if(index.flagI) {
-                    console.log(colors.green("[-] Highest increase: " + rating.highOld + " -> " + rating.highNew + ": +" + change.rateChange[index.i]));
-                } else {
-                    console.log(colors.green("[-] Highest increase: Never Increased!"));
-                }
-                if(index.flagJ) {
-                    console.log(colors.red("[-] Highest decrease: " + rating.lowOld + " -> " + rating.lowNew + ": " + change.rateChange[index.j]));
-                } else {
-                    console.log(colors.red("[-] Highest decrease: Never Decreased!"));
-                }
-
-            }
-        }
-    })
-}
+// Get Submission code FINISHED
 
 
 async function generateProblems(handle, count, tag, difficulty) {
@@ -330,9 +230,9 @@ function tagsDistribution (handle){
         'fft' : 0,
         '2-sat' : 0,
         'chinese remainder theorem' : 0,
-        'schedules' : 0, 
+        'schedules' : 0,
     };
-     
+
     request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
         if (error) {
             console.error(error);
@@ -364,7 +264,7 @@ function tagsDistribution (handle){
                 console.log("-----------------------------------------------------------------------------------------")
                 for (i in tagsDictionary){
                     if (tagsDictionary[i] != 0)
-                    {   
+                    {
 
                         process.stdout.write("[-] "+ i + " : "  );
                         for (var j = 0; j < (tagsDictionary[i] / accepted_Tags.length)*100; ++j)
@@ -373,7 +273,7 @@ function tagsDistribution (handle){
                         console.log("-----------------------------------------------------------------------------------------")
                     }
                 }
-                
+
             }
         }
     });
@@ -400,7 +300,7 @@ program
     .option('-u, --user', 'handle of the required user')
     .action(function (usr) {
         if (typeof usr === "string")
-            getUser(usr);
+            functions.getUserInfo(usr);
         else
             console.log("Invalid!!!!!!");
     });
@@ -422,7 +322,7 @@ program
     .option('-u, --user', 'handle of the required user')
     .action(function (usr) {
         if (typeof usr === "string")
-            contestStatistics(usr);
+            functions.contestStatistics(usr);
         else
             console.log("Invalid!!!!!!");
     });
