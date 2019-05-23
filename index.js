@@ -110,30 +110,6 @@ function recentActions(count) {
     });
 }
 
-
-function userSubmissions(handle, count) {
-    request('https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1, function (error, response, body) {
-        if (error) {
-            console.error(error);
-        } else {
-            var result = JSON.parse(body);
-            result = result.result.slice(0, count + 1);
-            for (i = 0; i < count; ++i) {
-                console.log('[-] Submission Link :' + colors.green('https://codeforces.com/contest/' + result[i].contestId + '/submission/' + result[i].id));
-                console.log('[-] Problem Name :' + result[i].problem.name);
-                console.log('[-] Problem Id :' + result[i].contestId + result[i].problem.index);
-                if (result[i].verdict != "OK") {
-                    console.log('[-] Problem Status :' + result[i].verdict + " on test " + (result[i].passedTestCount + 1));
-                } else {
-                    console.log('[-] Problem Status :' + result[i].verdict);
-                }
-                console.log("----------");
-            }
-        }
-    });
-}
-
-
 function upcomingContests(count) {
     request('https://codeforces.com/api/contest.list', function (error, response, body) {
         if (error) {
@@ -262,93 +238,93 @@ program.on('--help', () => {
 
 
 program
-    .command('get-user')
-    .option('-u, --user', 'handle of the required user')
-    .action(function (usr) {
-        if (typeof usr === "string")
-            functions.getUserInfo(usr);
-        else
-            console.log("Invalid!!!!!!");
-    });
+  .command('get-user')
+  .option('-u, --user', 'handle of the required user')
+  .action(function (usr) {
+      if (typeof usr === "string")
+          functions.getUserInfo(usr);
+      else
+          console.log("Invalid!!!!!!");
+  });
 
 program
-    .command('get-code')
-    .option('-s, --submission', 'submission id required')
-    .option('-i, --contest', 'contest id required')
-    .action(function (sub_id, con_id) {
-        if (typeof sub_id === "string" && typeof con_id === "string")
-            functions.getSubmissionCode(sub_id, con_id);
-        else
-            console.log("Invalid!!!!!!");
-    });
-
-
-program
-    .command('con-stat')
-    .option('-u, --user', 'handle of the required user')
-    .action(function (usr) {
-        if (typeof usr === "string")
-            functions.contestStatistics(usr);
-        else
-            console.log("Invalid!!!!!!");
-    });
+  .command('get-code')
+  .option('-s, --submission', 'submission id required')
+  .option('-i, --contest', 'contest id required')
+  .action(function (sub_id, con_id) {
+      if (typeof sub_id === "string" && typeof con_id === "string")
+          functions.getSubmissionCode(sub_id, con_id);
+      else
+          console.log("Invalid!!!!!!");
+  });
 
 
 program
-    .command('gen-problems')
-    .option('-u, --user', 'handle of the required user')
-    .option('-c, --count', 'number of problems to be generated')
-    .option('-t, --tag', 'category of the problem to be generated')
-    .option('-d, --difficulty', 'difficulty of the required problems')
-    .action(function (usr, cnt, tag, dif) {
-        if (typeof usr === "string" && typeof cnt === "string" &&
-            typeof tag === "string" && typeof dif === "string")
-            generateProblems(usr, cnt, tag, dif);
-        else
-            console.log("Invalid!!!!!!");
-    });
+  .command('get-stats')
+  .option('-u, --user', 'handle of the required user')
+  .action(function (usr) {
+      if (typeof usr === "string")
+          functions.getContestStatistics(usr);
+      else
+          console.log("Invalid!!!!!!");
+  });
+
+program
+  .command('get-submissions')
+  .option('-u, --user', 'handle of the required user')
+  .option('-c, --count', 'number of problems to be generated')
+  .action(function (usr, cnt) {
+    if (typeof usr === "string" && typeof cnt === "string")
+    functions.getUserSubmissions(usr, cnt);
+    else
+    console.log("Invalid!!!!!!");
+  });
+
+program
+  .command('gen-problems')
+  .option('-u, --user', 'handle of the required user')
+  .option('-c, --count', 'number of problems to be generated')
+  .option('-t, --tag', 'category of the problem to be generated')
+  .option('-d, --difficulty', 'difficulty of the required problems')
+  .action(function (usr, cnt, tag, dif) {
+      if (typeof usr === "string" && typeof cnt === "string" &&
+          typeof tag === "string" && typeof dif === "string")
+          generateProblems(usr, cnt, tag, dif);
+      else
+          console.log("Invalid!!!!!!");
+  });
 
 
 program
-    .command('rec-action')
-    .option('-c, --count', 'number of blogs to get')
-    .action(function (cnt) {
-        if (typeof cnt === "string")
-            recentActions(cnt);
-        else
-            console.log("Invalid!!!!!!");
-    });
+  .command('rec-action')
+  .option('-c, --count', 'number of blogs to get')
+  .action(function (cnt) {
+      if (typeof cnt === "string")
+          recentActions(cnt);
+      else
+          console.log("Invalid!!!!!!");
+  });
 
 
 program
-    .command('com-contest')
-    .option('-c, --count', 'max number of upcoming contest to print')
-    .action(function (cnt) {
-        if (typeof cnt === "string")
-            upcomingContests(cnt);
-        else
-            console.log("Invalid!!!!!!");
-    });
+  .command('com-contest')
+  .option('-c, --count', 'max number of upcoming contest to print')
+  .action(function (cnt) {
+      if (typeof cnt === "string")
+          upcomingContests(cnt);
+      else
+          console.log("Invalid!!!!!!");
+  });
 
 
 program
-    .command('usr-submission')
-    .option('-u, --user', 'handle of the required user')
-    .option('-c, --count', 'number of problems to be generated')
-    .action(function (usr, cnt) {
-        if (typeof usr === "string" && typeof cnt === "string")
-            userSubmissions(usr, cnt);
-        else
-            console.log("Invalid!!!!!!");
-    });
-program
-    .command('tag-distribution')
-    .option('-u, --user', 'handle of the required user')
-    .action(function (usr) {
-        if (typeof usr === "string")
-            tagsDistribution(usr);
-        else
-            console.log("Invalid!!!!!!");
-    });
+  .command('tag-distribution')
+  .option('-u, --user', 'handle of the required user')
+  .action(function (usr) {
+      if (typeof usr === "string")
+          tagsDistribution(usr);
+      else
+          console.log("Invalid!!!!!!");
+  });
 
 program.parse(process.argv);
