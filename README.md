@@ -9,6 +9,7 @@ A command-line tool for [codeforces](http://codeforces.com)
 * Generate the latest Submissions
 * Check the latest contests
 * Generate unsolved problems based on tag and difficulty
+* Codeforces tags distribution for user's accepted solutions.
 
 ### Commands 
 * `cf get-user -u <handle>`
@@ -18,6 +19,7 @@ A command-line tool for [codeforces](http://codeforces.com)
 * `cf usr-submission -u <handle> -c <number-of-problems>`
 * `cf com-contest -c <maximum-number-of-upcoming-contests>`
 * `cf gen-problems -u <handle> -c <number-of-problems> -t <tag> -d <difficulty>`
+* `cf tag-codeforces -u <handle>`
 
 ### Installation
 `sudo npm install codeforces-cli -g`
