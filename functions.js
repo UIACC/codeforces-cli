@@ -2,8 +2,9 @@
 const request = require('request');
 const colors = require('colors');
 const shuffle = require('shuffle-array');
-const cheerio = require('cheerio')
-const jsonframe = require('jsonframe-cheerio')
+const cheerio = require('cheerio');
+const jsonframe = require('jsonframe-cheerio');
+const fs = require('fs');
 const got = require('got');
 
 // GET User information
@@ -114,4 +115,58 @@ exports.contestStatistics = function(handle) {
       }
     }
   });
+}
+
+
+
+// Get Submission code
+exports.getSubmissionCode = async function(submissionId, contestId) {
+  // Construct the query url
+  var submissionUrl = 'https://codeforces.com/contest/' + contestId + '/submission/' + submissionId;
+  // Call the code extraction function to get the submission code
+  var elementsExtracted = await extractCode(submissionUrl);
+  // Parsing the result into JSON
+  elementsExtracted = JSON.parse(elementsExtracted);
+  // Accessing the code submission
+  extractedCode = elementsExtracted.code;
+
+  // REGEX FORMATING THE CODE UNDERR CONSTRUCTION
+  extractedCode = extractedCode.replace(/#/g, "\n#");
+  extractedCode = extractedCode.replace(/using/g, "\nusing");
+  extractedCode = extractedCode.replace(/int main/g, "\nint main");
+  extractedCode = extractedCode.replace(/{/g, "\n{\n");
+  extractedCode = extractedCode.replace(/}/g, "\n}\n");
+  // Printing the result
+  console.log(extractedCode);
+  
+  // Saving the extractedCode to a CPP file.
+  fs.writeFile("submissionCode.cpp", extractedCode, (err)=>{
+    if(err)
+      console.error(error);
+    else
+      console.log("Code copied succesfully to the file 'submissionCode.cpp' in the current directory");
+  });
+
+}
+
+
+// Scrapping Page for code
+async function extractCode(url) {
+  // Loading URL
+  const html = await got(url)
+  //Getting html data
+  const $ = cheerio.load(html.body)
+  // initializing the plugin
+  jsonframe($)
+  // The elements we are looking for in the html
+  var frame = {
+    code: {
+        _s: ".roundbox",
+        _d: "#program-source-text"
+      }
+    };
+  // Calling the scrape function
+  var code = $('#body div#pageContent').scrape(frame, {string: true});
+  // Returning the elements extracted
+  return code;
 }
