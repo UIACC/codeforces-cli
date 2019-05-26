@@ -16,8 +16,9 @@ const lineBreak = colors.rainbow;
 const link = colors.green.bold.underline;
 
 
+// Helper function for the extract code function
 // Scrapping Page for code
-const extractCode = async function(url) {
+async function extractCode(url) {
   // Loading URL
   const html = await got(url)
   //Getting html data
@@ -34,6 +35,16 @@ const extractCode = async function(url) {
   return code;
 }
 
+
+
+// Helper function for the Get upcoming contests function
+// Sorts contests based on their starting time
+function sortContests(contestA, contestB) {
+  if (contestA.startTimeSeconds < contestB.startTimeSeconds)
+    return -1;
+  else
+    return 1;
+}
 
 
 
@@ -131,7 +142,7 @@ exports.getContestStatistics = function(handle) {
         if (maxIncreaseContest) {
             let ratingFrom = contests[maxIncreaseContest].oldRating;
             let ratingTo = contests[maxIncreaseContest].newRating;
-            console.log(correct('[-] Largest Rating Increase: ' + ratingFrom + ' -> ' + ratingTo + ': ++' + ratingMaxIncrease));
+            console.log('[-] Largest Rating Increase: ' + correct(ratingFrom + ' -> ' + ratingTo + ': ++' + ratingMaxIncrease));
         }
         else console.log('[-] Rating Never Increased');
 
@@ -180,6 +191,7 @@ exports.getSubmissionCode = async function(submissionId, contestId) {
 }
 
 
+
 // Get User Submissions
 exports.getUserSubmissions =  function (handle, count) {
   var queryUrl = 'https://codeforces.com/api/user.status?handle=' + handle + "&from=1&count=" + count + 1;
@@ -219,6 +231,49 @@ exports.getUserSubmissions =  function (handle, count) {
           console.log('[-] Problem Name: ' + name(problem.name) + ' , Link: ' + link(problemUrl));
           console.log(lineBreak("\n--------------------------------------------------\n"));
         }
+      }
+    }
+  });
+}
+
+
+
+// Get Upcoming Contests
+exports.getUpcomingContests = function(count) {
+  queryUrl = 'https://codeforces.com/api/contest.list';
+  request(queryUrl, function (error, response, body) {
+    // Did we face an error with the request
+    if (error)
+      console.error(error);
+    else {
+      // Parse the Result
+      var queryResult = JSON.parse(body);
+      // Check The result Status
+      if (queryResult.status == "FAILED")
+        console.log(queryResult.comment);
+      else {
+        contests = queryResult.result;
+        // Sort the contests by their start time
+        contests.sort(sortContests);
+        // Check if the Contest is finished or not
+        for (i = 0; i < contests.length && count>0; ++i) {
+          contest = contests[i];
+          // If the contest hasn't started yet then print it
+          if (contest.phase == "BEFORE") {
+            // The Registration Link to this contest
+            let registrationLink = 'https://codeforces.com/contestRegistration/' + contest.id;
+            // The duration of the contest
+            let contestDuration = contest.durationSeconds / 3600;
+            console.log('[-] Contest Style : ' + contest.type);
+            console.log('[-] Contest Duration : ' + contestDuration + " hours");
+            console.log('[-] Contest Name : ' + name(contest.name));
+            console.log('[-] Registration Link : ' + link(registrationLink));
+            console.log(lineBreak("\n--------------------------------------------------\n"));
+            count -= 1;
+          }
+        }
+        // If we couldn't get the required count
+        if (count) console.log(wrong("SORRY, THAT'S ALL WE HAVE FOR NOW!!"));
       }
     }
   });

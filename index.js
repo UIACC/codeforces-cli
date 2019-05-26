@@ -110,30 +110,6 @@ function recentActions(count) {
     });
 }
 
-function upcomingContests(count) {
-    request('https://codeforces.com/api/contest.list', function (error, response, body) {
-        if (error) {
-            console.error(error);
-        } else {
-            var result = JSON.parse(body);
-            if (result.status == "FAILED") {
-                console.log(result.comment);
-            } else {
-                result = result.result.slice(1, count + 1);
-                for (i = 0; i < result.length; ++i) {
-                    if (result[i].phase != "FINISHED" && count > 0) {
-                        count -= 1;
-                        console.log('[-] Contest Name :' + result[i].name);
-                        console.log('[-] Contest Duration :' + result[i].durationSeconds / 3600 + " hours");
-                        console.log('[-] Contest Type :' + result[i].type);
-                        console.log('[-] Contest Status :' + result[i].phase);
-                        console.log("----------");
-                    }
-                }
-            }
-        }
-    });
-}
 
 function tagsDistribution (handle){
     var accepted_Tags = [];
@@ -281,6 +257,17 @@ program
   });
 
 program
+  .command('get-contests')
+  .option('-c, --count', 'max number of upcoming contest to print')
+  .action(function (cnt) {
+      if (typeof cnt === "string")
+          functions.getUpcomingContests(cnt);
+      else
+          console.log("Invalid!!!!!!");
+  });
+
+
+program
   .command('gen-problems')
   .option('-u, --user', 'handle of the required user')
   .option('-c, --count', 'number of problems to be generated')
@@ -301,17 +288,6 @@ program
   .action(function (cnt) {
       if (typeof cnt === "string")
           recentActions(cnt);
-      else
-          console.log("Invalid!!!!!!");
-  });
-
-
-program
-  .command('com-contest')
-  .option('-c, --count', 'max number of upcoming contest to print')
-  .action(function (cnt) {
-      if (typeof cnt === "string")
-          upcomingContests(cnt);
       else
           console.log("Invalid!!!!!!");
   });
