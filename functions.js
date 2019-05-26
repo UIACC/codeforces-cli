@@ -14,6 +14,7 @@ const wrong = colors.red.bold;
 const name = colors.cyan.bold;
 const lineBreak = colors.rainbow;
 const link = colors.green.bold.underline;
+const title = colors.magenta.bold;
 
 
 // Helper function for the extract code function
@@ -46,6 +47,15 @@ function sortContests(contestA, contestB) {
     return 1;
 }
 
+
+
+// Helper function for the Get recent Actions
+// Sorts blogs based on the time they were posted
+function sortBlogs(blogA, blogB) {
+  if (blogA.timeSeconds < blogB.timeSeconds)  return -1;
+  if (blogA.timeSeconds > blogB.timeSeconds)  return 1;
+  else return 0;
+}
 
 
 // GET User information
@@ -240,7 +250,7 @@ exports.getUserSubmissions =  function (handle, count) {
 
 // Get Upcoming Contests
 exports.getUpcomingContests = function(count) {
-  queryUrl = 'https://codeforces.com/api/contest.list';
+  var queryUrl = 'https://codeforces.com/api/contest.list';
   request(queryUrl, function (error, response, body) {
     // Did we face an error with the request
     if (error)
@@ -273,7 +283,52 @@ exports.getUpcomingContests = function(count) {
           }
         }
         // If we couldn't get the required count
-        if (count) console.log(wrong("SORRY, THAT'S ALL WE HAVE FOR NOW!!"));
+        if (count)
+          console.log(wrong("SORRY, THAT'S ALL WE HAVE FOR NOW!!"));
+      }
+    }
+  });
+}
+
+
+
+
+// Get Recent Actions
+exports.getRecentActions = function(count) {
+  // Requesting the recent action data from the API
+  var queryUrl = 'http://codeforces.com/api/recentActions?maxCount=100';
+  request(queryUrl, function (error, response, body) {
+    // Did we face an error with the request
+    if (error)  console.error(error);
+    else {
+      // Parse the Result
+      var queryResult = JSON.parse(body);
+      // Check The result Status
+      if (queryResult.status == "FAILED") console.log(queryResult.comment);
+      else {
+        // Parsing the result
+        blogs = queryResult.result;
+        // Sort blogs based on the time they were created
+        blogs.sort(sortBlogs);
+        var found = [];
+        for (var i = 0; i < blogs.length && found.length < count; i++) {
+          // Printing The number of recent activities the user wanted
+          blog = blogs[i];
+          let blogAuthor = blog.blogEntry.authorHandle;
+          let blogTitle = blog.blogEntry.title.slice(3, -4);
+          let blogUrl = "https://codeforces.com/blog/entry/" + blog.blogEntry.id;
+
+          if (found.includes(blogTitle) == false) {
+            found.push(blogTitle); // keeping track of what have been printed to avoid repeatition.
+            console.log('[-] Author : ' + name(blogAuthor));
+            console.log('[-] Title : ' + title(blogTitle));
+            console.log('[-] Link : ' + link(blogUrl));
+            console.log(lineBreak("\n--------------------------------------------------\n"));
+          }
+        }
+        // If we couldn't get the required count
+        if (found.length != count)
+          console.log(wrong("SORRY, THAT'S ALL WE HAVE FOR NOW!!"));
       }
     }
   });
