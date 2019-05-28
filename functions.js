@@ -1,12 +1,9 @@
-// Main Packages needed for the functionality
-const request = require('request');
-const colors = require('colors');
-const shuffle = require('shuffle-array');
-const cheerio = require('cheerio');
-const jsonframe = require('jsonframe-cheerio');
+// Packages Needed for the main functionality
 const fs = require('fs');
-const got = require('got');
-
+const colors = require('colors');
+const request = require('request');
+const shuffle = require('shuffle-array');
+const helpers = require('./helpers');
 
 // Setting specific themes used in printing
 const correct = colors.green.bold;
@@ -15,47 +12,6 @@ const name = colors.cyan.bold;
 const lineBreak = colors.rainbow;
 const link = colors.green.bold.underline;
 const title = colors.magenta.bold;
-
-
-// Helper function for the extract code function
-// Scrapping Page for code
-async function extractCode(url) {
-  // Loading URL
-  const html = await got(url)
-  //Getting html data
-  const $ = await cheerio.load(html.body)
-  // initializing the plugin
-  jsonframe($)
-  // The elements we are looking for in the html
-  var frame = {
-    code: "#program-source-text"
-    };
-  // Calling the scrape function
-  let code = $('#body div #pageContent .roundbox').scrape(frame, {string: true});
-  // Returning the elements extracted
-  return code;
-}
-
-
-
-// Helper function for the Get upcoming contests function
-// Sorts contests based on their starting time
-function sortContests(contestA, contestB) {
-  if (contestA.startTimeSeconds < contestB.startTimeSeconds)
-    return -1;
-  else
-    return 1;
-}
-
-
-
-// Helper function for the Get recent Actions
-// Sorts blogs based on the time they were posted
-function sortBlogs(blogA, blogB) {
-  if (blogA.timeSeconds < blogB.timeSeconds)  return -1;
-  if (blogA.timeSeconds > blogB.timeSeconds)  return 1;
-  else return 0;
-}
 
 
 // GET User information
@@ -175,7 +131,7 @@ exports.getSubmissionCode = async function(submissionId, contestId) {
   // Construct the query url
   var submissionUrl = 'https://codeforces.com/contest/' + contestId + '/submission/' + submissionId;
   // Call the code extraction function to get the submission code
-  var elementsExtracted = await extractCode(submissionUrl);
+  var elementsExtracted = await helpers.extractCode(submissionUrl);
   // Parsing the result into JSON
   elementsExtracted = JSON.parse(elementsExtracted);
   // Accessing the code submission
@@ -264,7 +220,7 @@ exports.getUpcomingContests = function(count) {
       else {
         contests = queryResult.result;
         // Sort the contests by their start time
-        contests.sort(sortContests);
+        contests.sort(helpers.sortContests);
         // Check if the Contest is finished or not
         for (i = 0; i < contests.length && count>0; ++i) {
           contest = contests[i];
@@ -309,7 +265,7 @@ exports.getRecentActions = function(count) {
         // Parsing the result
         blogs = queryResult.result;
         // Sort blogs based on the time they were created
-        blogs.sort(sortBlogs);
+        blogs.sort(helpers.sortBlogs);
         var found = [];
         for (var i = 0; i < blogs.length && found.length < count; i++) {
           // Printing The number of recent activities the user wanted
@@ -331,5 +287,62 @@ exports.getRecentActions = function(count) {
           console.log(wrong("SORRY, THAT'S ALL WE HAVE FOR NOW!!"));
       }
     }
+  });
+}
+
+
+
+
+// Get Problems: Generats problems for the user.
+exports.getProblems = function (handle, count, tag, difficulty) {
+  // Call the helper function to get the solved problems by this user
+  helpers.getSubmissions(handle, function(data) {
+    let solvedProblems = data;
+    var queryUrl = 'https://codeforces.com/api/problemset.problems?tags=' + tag;
+    request(queryUrl, function (error, response, body) {
+      // Did we face an error with the request
+      if (error)  console.error(error);
+      else{
+        // Parse the Result
+        var queryResult = JSON.parse(body);
+        // Check The result Status
+        if (queryResult.status == "FAILED")  console.log(queryResult.comment);
+        else {
+          var problems = queryResult.result.problems;
+          var validProblems = [];
+          // For each problem we got back
+          for (var i = 0; i < problems.length; ++i) {
+            var problem = problems[i];
+            // If the problem matches the rating needed and the user didn't solve it yet
+            // Add it to our array
+            if(problem.rating <= difficulty && solvedProblems.includes(problem.name) == false) {
+              let validProblem = {
+                Name: problem.name,
+                Rating: problem.rating,
+                Link: "https://codeforces.com/problemset/problem/" + problem.contestId + "/" + problem.index
+              }
+              validProblems.push(validProblem);
+            }
+          }
+
+          // Printing the number of problems requested
+          while (validProblems.length > 0 && count > 0) {
+            // Shuffle the array so that the generated problems are not the same
+            validProblems = shuffle(validProblems);
+            problem = validProblems[0];
+            console.log("[-] Name : " + name(problem.Name));
+            console.log("[-] Rating : " + problem.Rating);
+            console.log("[-] URl : " + link(problem.Link));
+            console.log(lineBreak("\n--------------------------------------------------\n"));
+            // Remove the problem we just printed
+            validProblems.shift();
+            count -= 1;
+          }
+          // If we couldn't get the required count
+          if (count)
+            console.log(wrong("SORRY, THAT'S ALL WE HAVE FOR NOW!!"));
+        }
+      }
+    });
   });
 }

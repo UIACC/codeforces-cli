@@ -4,74 +4,6 @@
 const program = require('commander');
 const functions = require('./functions')
 
-async function generateProblems(handle, count, tag, difficulty) {
-    var accepted = [];
-    await request('https://codeforces.com/api/user.status?handle=' + handle, function (error, response, body) {
-        if (error) {
-            console.error(error);
-        } else {
-            var result = JSON.parse(body);
-            if (result.status == "FAILED") {
-                console.log(result.comment);
-            } else {
-                result = result.result;
-                for (i = 0; i < result.length; ++i) {
-                    if (result[i].verdict == "OK") {
-                        var accepted_Question = result[i].problem.contestId + result[i].problem.index;
-                        accepted.push(accepted_Question);
-                        if (accepted.includes(accepted_Question) == false) {
-                            accepted.push(accepted_Question);
-                        }
-                    }
-                }
-                request('https://codeforces.com/api/problemset.problems?tags=' + tag, function (error, response, body) {
-                    var accepted_Result = [];
-                    if (error) {
-                        console.error(error);
-                    } else {
-                        var result = JSON.parse(body);
-                        if (result.status == "FAILED") {
-                            console.log(result.comment);
-                        } else {
-                            var found = 0;
-                            var result = result.result;
-                            for (var i = 0; i < result.problems.length; ++i) {
-                                var current_Question = result.problems[i].contestId + result.problems[i].index
-                                if (result.problems[i].rating <= difficulty && accepted.includes(current_Question) == false) {
-                                    accepted_Result.push({
-                                        Name: result.problems[i].name,
-                                        Rating: result.problems[i].rating,
-                                        URL: "https://codeforces.com/problemset/problem/" + result.problems[i].contestId + "/" + result.problems[i].index
-
-                                    })
-                                }
-                            }
-
-                            for (var j = 0; j < accepted_Result.length; ++j) {
-                                accepted_Result = shuffle(accepted_Result);
-                                const {
-                                    Name,
-                                    Rating,
-                                    URL
-                                } = accepted_Result[0];
-                                console.log("[-] Name : " + Name);
-                                console.log("[-] Rating : " + Rating)
-                                console.log("[-] URl : " + colors.green(URL));
-                                console.log("----------------------\n");
-                                found += 1;
-                                accepted_Result = accepted_Result.slice(1);
-                                if (found == count)
-                                    break;
-                            }
-                        }
-                    }
-                });
-            }
-        }
-    });
-}
-
-
 function tagsDistribution (handle){
     var accepted_Tags = [];
     var tagsDictionary = {
@@ -241,7 +173,7 @@ program
 
 
 program
-  .command('gen-problems')
+  .command('get-problems')
   .option('-u, --user', 'handle of the required user')
   .option('-c, --count', 'number of problems to be generated')
   .option('-t, --tag', 'category of the problem to be generated')
@@ -249,7 +181,7 @@ program
   .action(function (usr, cnt, tag, dif) {
       if (typeof usr === "string" && typeof cnt === "string" &&
           typeof tag === "string" && typeof dif === "string")
-          generateProblems(usr, cnt, tag, dif);
+          functions.getProblems(usr, cnt, tag, dif);
       else
           console.log("Invalid!!!!!!");
   });
